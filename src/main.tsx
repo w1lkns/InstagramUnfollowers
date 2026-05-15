@@ -293,15 +293,19 @@ function App() {
         await sleep(Math.floor(Math.random() * (timings.timeBetweenSearchCycles - timings.timeBetweenSearchCycles * 0.7)) + timings.timeBetweenSearchCycles);
         
         scrollCycle++;
-        if (scrollCycle > 6) {
+        if (scrollCycle >= 5) {
           scrollCycle = 0;
           // Variable long sleep to avoid patterns
           const longSleepVar = Math.max(
             0,
             timings.timeToWaitAfterFiveSearchCycles + (Math.random() * 10000 - 5000), // +/- 5 seconds
           );
-          setToast({ show: true, text: `Sleeping ${Math.round(longSleepVar / 1000)} seconds to prevent getting temp blocked` });
-          await sleep(longSleepVar);
+          let scanRemaining = longSleepVar;
+          while (scanRemaining > 0) {
+            setToast({ show: true, text: `Pausing ${Math.ceil(scanRemaining / 1000)}s to avoid a temp block`, style: "warning" });
+            await sleep(Math.min(1000, scanRemaining));
+            scanRemaining -= 1000;
+          }
         }
         setToast({ show: false });
       }
@@ -381,8 +385,15 @@ function App() {
         await sleep(Math.floor(Math.random() * (timings.timeBetweenUnfollows * 1.2 - timings.timeBetweenUnfollows)) + timings.timeBetweenUnfollows);
 
         if (counter % 5 === 0) {
-          setToast({ show: true, text: `Sleeping ${timings.timeToWaitAfterFiveUnfollows / 60000 } minutes to prevent getting temp blocked` });
-          await sleep(timings.timeToWaitAfterFiveUnfollows);
+          let remaining = timings.timeToWaitAfterFiveUnfollows;
+          while (remaining > 0) {
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            const secsStr = secs < 10 ? `0${secs}` : `${secs}`;
+            setToast({ show: true, text: `Pausing ${mins}:${secsStr} to avoid a temp block`, style: "warning" });
+            await sleep(Math.min(1000, remaining));
+            remaining -= 1000;
+          }
         }
         setToast({ show: false });
       }
@@ -408,6 +419,7 @@ function App() {
         scanningPaused={scanningPaused}
         UserCheckIcon={UserCheckIcon}
         UserUncheckIcon={UserUncheckIcon}
+        currentTimings={timings}
       ></Searching>;
       break;
     }

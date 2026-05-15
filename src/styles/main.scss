@@ -1090,8 +1090,3 @@ html {
         }
     }
 }
-.gap-small { gap: 4px; }
-.button-secondary { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #efefef; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; text-align: left; transition: all 0.2s ease; }
-.button-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
-.button-secondary.danger-text { color: #ff4d4d; }
-.button-secondary.danger-text:hover { background: rgba(255, 77, 77, 0.1); }

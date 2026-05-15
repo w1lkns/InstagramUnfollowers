@@ -3,7 +3,20 @@ import { assertUnreachable, getCurrentPageUnfollowers, getMaxPage, getUsersForDi
 import { State } from "../model/state";
 import { UserNode } from "../model/user";
 import { WHITELISTED_RESULTS_STORAGE_KEY } from "../constants/constants";
+import { Timings } from "../model/timings";
 
+function formatEstimate(n: number, timings: Timings): string {
+  if (n <= 1) return "";
+  const totalMs = (n - 1) * timings.timeBetweenUnfollows
+    + Math.floor((n - 1) / 5) * timings.timeToWaitAfterFiveUnfollows;
+  const totalMins = Math.ceil(totalMs / 60000);
+  if (totalMins >= 60) {
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    return m > 0 ? `~${h}h ${m}m` : `~${h}h`;
+  }
+  return `~${totalMins}m`;
+}
 
 export interface SearchingProps {
   state: State;
@@ -14,6 +27,7 @@ export interface SearchingProps {
   toggleUser: (checked: boolean, user: UserNode) => void;
   UserCheckIcon: React.FC;
   UserUncheckIcon: React.FC;
+  currentTimings: Timings;
 }
 
 export const Searching = ({
@@ -25,6 +39,7 @@ export const Searching = ({
   toggleUser,
   UserCheckIcon,
   UserUncheckIcon,
+  currentTimings,
 }: SearchingProps) => {
   if (state.status !== "scanning") {
     return null;
@@ -208,7 +223,7 @@ export const Searching = ({
         <button
           className="unfollow"
           onClick={() => {
-            if (!confirm("Are you sure?")) {
+            if (!confirm(`Unfollow ${state.selectedResults.length} ${state.selectedResults.length === 1 ? "user" : "users"}? This cannot be undone.\nEstimated time: ${formatEstimate(state.selectedResults.length, currentTimings)}`)) {
               return;
             }
             //TODO TEMP until types are properly fixed

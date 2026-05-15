@@ -47,7 +47,17 @@ export const Unfollowing = (
         {state.unfollowLog.length === state.selectedResults.length && (
           <>
             <hr />
-            <div className="fs-large p-medium clr-green">All DONE!</div>
+            <div className="p-medium">
+              <span className="fs-large clr-green">All DONE! </span>
+              <span className="fs-medium">
+                {state.unfollowLog.filter(e => e.unfollowedSuccessfully).length} unfollowed
+                {state.unfollowLog.some(e => !e.unfollowedSuccessfully) && (
+                  <span className="clr-red">
+                    &nbsp;· {state.unfollowLog.filter(e => !e.unfollowedSuccessfully).length} failed
+                  </span>
+                )}
+              </span>
+            </div>
             <hr />
           </>
         )}
