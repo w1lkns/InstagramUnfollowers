@@ -1,15 +1,24 @@
+// Instagram gradient
+$ig-purple: #833AB4;
+$ig-pink: #C13584;
+$ig-red-ig: #E1306C;
+$ig-orange: #F77737;
+
 // Colors
-$clr-red: #ac2626;
-$clr-green: #56d756;
-$clr-cyan: #00ffff;
-$clr-white: #ffffff;
-$clr-black: #111111;
-$clr-gray: #222222;
-$clr-border: #333333;
+$clr-red: #FF453A;
+$clr-green: #30D158;
+$clr-cyan: #64D2FF;
+$clr-white: #F5F5F7;
+$clr-black: #0d0d0d;
+$clr-gray: #1c1c1e;
+$clr-border: rgba(255, 255, 255, 0.09);
 
 // Background Colors
-$bg-primary: $clr-black; // Main background color
-$bg-secondary: $clr-gray; // Secondary background color
+$bg-primary: $clr-black;
+$bg-secondary: $clr-gray;
+
+// Accent
+$accent-blue: #0A84FF;
 
 // Sizes
 $size-small: 0.5rem;
@@ -18,5 +27,5 @@ $size-large: 1.5rem;
 $size-xlarge: 2rem;
 
 // Borders
-$border-radius: 8px;
+$border-radius: 10px;
 $border-color: $clr-border;

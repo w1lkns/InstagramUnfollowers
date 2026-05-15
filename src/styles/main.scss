@@ -14,7 +14,7 @@ html {
     }
 
     .iu {
-        font-family: system-ui;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
         @include helpers.main-layout;
         display: flex;
         flex-direction: column;
@@ -299,21 +299,32 @@ html {
             }
 
             &.run-scan {
-                background-color: transparent;
                 position: absolute;
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
-                font-size: 2em;
+                font-size: 1.6em;
+                font-weight: 700;
+                letter-spacing: 0.12em;
                 color: variables.$clr-white;
-                border: 1px solid variables.$clr-white;
                 height: 160px;
                 width: 160px;
                 border-radius: 50%;
+                border: 2px solid transparent;
+                background:
+                    linear-gradient(variables.$clr-black, variables.$clr-black) padding-box,
+                    linear-gradient(135deg, variables.$ig-purple, variables.$ig-pink, variables.$ig-red-ig, variables.$ig-orange) border-box;
+                box-shadow: 0 0 28px rgba(193, 53, 132, 0.28), 0 0 60px rgba(131, 58, 180, 0.12);
+                animation: run-pulse 3s ease-in-out infinite;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
             }
 
             &.run-scan:hover {
-                background-color: variables.$bg-secondary;
+                background:
+                    linear-gradient(variables.$clr-gray, variables.$clr-gray) padding-box,
+                    linear-gradient(135deg, variables.$ig-purple, variables.$ig-pink, variables.$ig-red-ig, variables.$ig-orange) border-box;
+                box-shadow: 0 0 48px rgba(193, 53, 132, 0.5), 0 0 80px rgba(131, 58, 180, 0.28);
+                transform: translate(-50%, -50%) scale(1.05);
             }
 
             &.unfollow {
@@ -348,11 +359,11 @@ html {
 
         .progressbar {
             width: 100%;
-            height: 6px;
+            height: 3px;
             position: absolute;
             left: 0;
             top: 0;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             overflow: hidden;
 
             &::after {
@@ -362,9 +373,9 @@ html {
                 left: 0;
                 height: 100%;
                 width: var(--progress-width, 0%);
-                background: linear-gradient(90deg, #007aff, #00c6ff);
-                box-shadow: 0 0 12px rgba(0, 122, 255, 0.6);
-                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: linear-gradient(90deg, variables.$ig-purple, variables.$ig-pink, variables.$ig-orange);
+                box-shadow: 0 0 10px rgba(193, 53, 132, 0.5);
+                transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
         }
 
@@ -383,11 +394,16 @@ html {
             }
 
             .result-item {
-                border-radius: 3px;
+                border-radius: 8px;
                 cursor: pointer;
+                transition: background-color 0.15s ease;
                 @extend .flex;
                 @extend .align-center;
                 @extend .p-medium;
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.04);
+                }
 
                 .avatar-container {
                     @extend .pos-relative;
@@ -465,17 +481,19 @@ html {
             @extend .p-large;
 
             .tab {
-                color: variables.$clr-gray;
+                color: rgba(255, 255, 255, 0.38);
                 border-radius: 8px;
                 cursor: pointer;
+                font-weight: 500;
+                font-size: 0.9rem;
+                transition: color 0.2s ease, background-color 0.2s ease;
                 @extend .grow;
-                @extend .fs-xlarge;
                 @extend .t-center;
                 @extend .p-small;
 
                 &-active {
-                    color: inherit;
-                    background-color: variables.$bg-secondary;
+                    color: variables.$clr-white;
+                    background-color: rgba(255, 255, 255, 0.08);
                 }
             }
         }
@@ -493,60 +511,62 @@ html {
     display: flex;
     opacity: 1;
     justify-content: space-between;
-    align-items: start;
+    align-items: center;
     width: 100%;
-    max-width: 360px;
-    padding: 0.8em;
-    gap: 0.5em;
+    max-width: 340px;
+    padding: 0.75em 1em;
+    gap: 0.6em;
     bottom: variables.$size-medium;
     right: variables.$size-medium;
-    color: variables.$clr-black;
-    background-color: variables.$clr-white;
-    font-size: 1.25em;
-    border-radius: 6px;
-    z-index: 2;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-    animation: slide-out 0.5s ease-in-out;
+    color: variables.$clr-white;
+    background: rgba(28, 28, 30, 0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    font-size: 0.92em;
+    font-weight: 450;
+    border-radius: 12px;
+    z-index: 9999;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3px solid variables.$accent-blue;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 
     >.toast {
         &__message {
             display: flex;
             margin: 0;
+            line-height: 1.4;
         }
 
         &__close-button {
             background: none;
             border: none;
-            color: inherit;
+            color: rgba(255, 255, 255, 0.45);
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
+            flex-shrink: 0;
+            transition: color 0.15s ease;
+
+            &:hover {
+                color: variables.$clr-white;
+            }
         }
     }
 
-    .show {
-        animation: slide-in 0.5s ease-in-out;
-        display: flex;
-        opacity: 1;
-    }
-
     &.success {
-        background-color: variables.$clr-green;
-        color: variables.$clr-white;
+        border-left-color: variables.$clr-green;
     }
 
     &.error {
-        background-color: variables.$clr-red;
-        color: variables.$clr-white;
+        border-left-color: variables.$clr-red;
     }
 
     &.info {
-        background-color: #2196f3;
-        color: variables.$clr-white;
+        border-left-color: variables.$accent-blue;
     }
 
     &.warning {
-        background-color: #fdd835;
-        color: variables.$clr-black;
+        border-left-color: #FF9F0A;
     }
 }
 
@@ -850,6 +870,37 @@ html {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes slide-out {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(24px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes run-pulse {
+    0%, 100% {
+        box-shadow: 0 0 28px rgba(193, 53, 132, 0.28), 0 0 60px rgba(131, 58, 180, 0.12);
+    }
+    50% {
+        box-shadow: 0 0 48px rgba(193, 53, 132, 0.48), 0 0 90px rgba(131, 58, 180, 0.25), 0 0 120px rgba(225, 48, 108, 0.12);
     }
 }
 
