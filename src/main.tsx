@@ -37,7 +37,7 @@ function App() {
     status: "initial",
   });
 
-  const [toast, setToast] = useState<{ readonly show: false } | { readonly show: true; readonly text: string }>({
+  const [toast, setToast] = useState<{ readonly show: false } | { readonly show: true; readonly text: string; readonly style?: "success" | "error" | "warning" | "info" }>({
     show: false,
   });
 
