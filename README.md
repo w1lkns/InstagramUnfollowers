@@ -11,7 +11,7 @@ This version utilizes the Instagram API for better performance.
 
 ## 🖥️ Desktop Usage
 
-1. Copy the code from: [InstagramUnfollowers Tool](https://davidarroyo1234.github.io/InstagramUnfollowers/)
+1. Copy the code from: [InstagramUnfollowers Tool](https://w1lkns.github.io/InstagramUnfollowers/)
 
 2. Press the COPY button to copy the code.
 
