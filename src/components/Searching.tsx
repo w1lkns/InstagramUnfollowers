@@ -320,6 +320,20 @@ export const Searching = ({
             <span>Try adjusting the filters in the sidebar</span>
           </div>
         )}
+        {state.results.length === 0 && state.percentage < 100 && (
+          <div className="skeleton-list">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="skeleton-card">
+                <div className="skeleton-avatar" />
+                <div className="skeleton-text">
+                  <div className="skeleton-line skeleton-line--name" />
+                  <div className="skeleton-line skeleton-line--sub" />
+                  <div className="skeleton-line skeleton-line--badges" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {getCurrentPageUnfollowers(usersForDisplay, state.page, state.sortBy).map(user => {
           const sectionKey = getSectionKey(user);
           const isNewSection = sectionKey !== currentSection;
@@ -327,6 +341,8 @@ export const Searching = ({
             currentSection = sectionKey;
           }
           const isWhitelisted = state.whitelistedResults.some(r => r.id === user.id);
+          const isSelected = state.selectedResults.some(s => s.id === user.id);
+          const hasStory = user.reel?.latest_reel_media > 0;
           return (
             <React.Fragment key={user.id}>
               {isNewSection && (
@@ -334,9 +350,9 @@ export const Searching = ({
                   {getSectionLabel(sectionKey)}
                 </div>
               )}
-              <label className={`result-item ${user.follows_viewer ? "mutual" : "non-follower"}`}>
-                <div className="flex grow align-center">
-                  <div className="avatar-container">
+              <label className={`result-item ${user.follows_viewer ? "mutual" : "non-follower"} ${isSelected ? "selected" : ""}`}>
+                <div className="flex grow align-center gap-small">
+                  <div className={`avatar-container ${hasStory ? "has-story" : ""}`}>
                     <img
                       className="avatar"
                       alt={user.username}
@@ -346,28 +362,29 @@ export const Searching = ({
                       <img src={user.profile_pic_url.replace("s150x150/", "s320x320/")} alt={user.username} />
                     </div>
                   </div>
-                  <div className="flex column m-medium">
-                    <a
-                      className="fs-xlarge"
-                      target="_blank"
-                      href={`/${user.username}`}
-                      rel="noreferrer"
-                    >
-                      {user.username}
-                    </a>
-                    <span className="fs-medium">{user.full_name}</span>
-                  </div>
-                  {user.is_verified && <div className="verified-badge">✔</div>}
-                  {user.is_private && (
-                    <div className="flex justify-center w-100">
-                      <span className="private-indicator">Private</span>
+                  <div className="user-info">
+                    <div className="user-name-row">
+                      <a
+                        className="user-username"
+                        target="_blank"
+                        href={`/${user.username}`}
+                        rel="noreferrer"
+                      >
+                        {user.username}
+                      </a>
+                      {user.is_verified && <span className="verified-badge">✔</span>}
                     </div>
-                  )}
+                    {user.full_name && <span className="user-fullname">{user.full_name}</span>}
+                    <div className="user-badge-row">
+                      <span className={`relationship-badge ${user.follows_viewer ? "follows-back" : "non-follower"}`}>
+                        {user.follows_viewer ? "Follows you" : "Doesn't follow"}
+                      </span>
+                      {user.is_private && <span className="badge-pill badge-private">Private</span>}
+                      {user.requested_by_viewer && <span className="badge-pill badge-pending">Pending</span>}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex align-center gap-small">
-                  <span className={`relationship-badge ${user.follows_viewer ? "follows-back" : "non-follower"}`}>
-                    {user.follows_viewer ? "Follows you" : "Doesn't follow"}
-                  </span>
+                <div className="card-actions">
                   <button
                     className={`whitelist-bookmark-button ${isWhitelisted ? "active" : ""}`}
                     onClick={(e) => {
@@ -385,7 +402,7 @@ export const Searching = ({
                   <input
                     className="account-checkbox"
                     type="checkbox"
-                    checked={state.selectedResults.indexOf(user) !== -1}
+                    checked={isSelected}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => toggleUser(e.currentTarget.checked, user)}
                   />
                 </div>
