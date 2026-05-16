@@ -68,7 +68,7 @@ function App() {
       const raw = localStorage.getItem("ig_scan_cache");
       if (!raw) return;
       const cache = JSON.parse(raw) as { results: UserNode[]; timestamp: number };
-      if (Date.now() - cache.timestamp > 24 * 60 * 60 * 1000) {
+      if (Date.now() - cache.timestamp > 7 * 24 * 60 * 60 * 1000) {
         localStorage.removeItem("ig_scan_cache");
         return;
       }
@@ -373,7 +373,9 @@ function App() {
         setToast({ show: false });
       }
       try {
-        localStorage.setItem("ig_scan_cache", JSON.stringify({ results, timestamp: Date.now() }));
+        const cache = { results, timestamp: Date.now() };
+        localStorage.setItem("ig_scan_cache", JSON.stringify(cache));
+        setCachedScan(cache);
       } catch {}
       setToast({ show: true, text: "Scanning completed!" });
     };
