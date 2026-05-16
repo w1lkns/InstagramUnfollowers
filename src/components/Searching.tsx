@@ -352,7 +352,7 @@ export const Searching = ({
               )}
               <label className={`result-item ${user.follows_viewer ? "mutual" : "non-follower"} ${isSelected ? "selected" : ""}`}>
                 <div className="flex grow align-center gap-small">
-                  <div className={`avatar-container ${hasStory ? "has-story" : ""}`}>
+                  <div className={`avatar-container ${hasStory ? "has-story" : ""}`} onClick={(e) => e.stopPropagation()}>
                     <img
                       className="avatar"
                       alt={user.username}
