@@ -14,7 +14,7 @@ html {
     }
 
     .iu {
-        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         @include helpers.main-layout;
         display: flex;
         flex-direction: column;
@@ -473,7 +473,116 @@ html {
         }
 
         .unfollow-log-container {
-            @extend .p-medium;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .unfollow-log-entry {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.55rem 0.7rem;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: background-color 0.15s ease;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.04);
+            }
+
+            .unfollow-log-username {
+                flex: 1;
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+
+            .unfollow-log-status {
+                font-size: 0.75rem;
+                font-weight: 600;
+                padding: 0.18rem 0.55rem;
+                border-radius: 20px;
+            }
+
+            .unfollow-log-index {
+                font-size: 0.72rem;
+                color: rgba(255, 255, 255, 0.28);
+                min-width: 40px;
+                text-align: right;
+            }
+
+            &.success .unfollow-log-status {
+                background: rgba(48, 209, 88, 0.15);
+                color: variables.$clr-green;
+            }
+
+            &.failed .unfollow-log-status {
+                background: rgba(255, 69, 58, 0.15);
+                color: variables.$clr-red;
+            }
+        }
+
+        .completion-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.9rem 1rem;
+            margin: 0.5rem 0 0.75rem;
+            background: rgba(48, 209, 88, 0.08);
+            border: 1px solid rgba(48, 209, 88, 0.2);
+            border-radius: 10px;
+
+            .completion-check {
+                font-size: 1.5rem;
+                color: variables.$clr-green;
+            }
+
+            strong {
+                font-size: 0.92rem;
+                display: block;
+            }
+
+            .completion-failed {
+                font-size: 0.82rem;
+                color: variables.$clr-red;
+            }
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+
+            .empty-state-icon {
+                font-size: 2.4rem;
+                margin-bottom: 0.9rem;
+                color: rgba(255, 255, 255, 0.15);
+            }
+
+            p {
+                font-size: 0.95rem;
+                margin: 0 0 0.35rem;
+                color: rgba(255, 255, 255, 0.45);
+            }
+
+            span {
+                font-size: 0.8rem;
+                color: rgba(255, 255, 255, 0.22);
+            }
+        }
+
+        .avatar--small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .scan-progress {
+            color: variables.$accent-blue !important;
+            font-weight: 600 !important;
         }
 
         .tabs-container {

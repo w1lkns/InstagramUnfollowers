@@ -5,7 +5,7 @@ import { ScanningFilter } from "../model/scanning-filter";
 import { UnfollowLogEntry } from "../model/unfollow-log-entry";
 import { UnfollowFilter } from "../model/unfollow-filter";
 
-export async function copyListToClipboard(nonFollowersList: readonly UserNode[]): Promise<void> {
+export async function copyListToClipboard(nonFollowersList: readonly UserNode[], onSuccess?: () => void): Promise<void> {
   const sortedList = [...nonFollowersList].sort((a, b) => (a.username > b.username ? 1 : -1));
 
   let output = '';
@@ -14,7 +14,7 @@ export async function copyListToClipboard(nonFollowersList: readonly UserNode[])
   });
 
   await navigator.clipboard.writeText(output);
-  alert('List copied to clipboard!');
+  onSuccess?.();
 }
 
 export function exportToJSON(users: readonly UserNode[]) {

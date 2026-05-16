@@ -17,6 +17,7 @@ interface ToolBarProps {
   setTimings: (timings: Timings) => void;
   whitelistedUsers: readonly UserNode[];
   onWhitelistUpdate: (users: readonly UserNode[]) => void;
+  showToast: (text: string, style?: "success" | "error" | "warning" | "info") => void;
 }
 
 export const Toolbar = ({
@@ -29,6 +30,7 @@ export const Toolbar = ({
   setTimings,
   whitelistedUsers,
   onWhitelistUpdate,
+  showToast,
 }: ToolBarProps) => {
 
   const [setingMenu, setSettingMenu] = useState(false);
@@ -75,7 +77,7 @@ export const Toolbar = ({
           onClick={() => {
             switch (state.status) {
               case "scanning":
-                return copyListToClipboard(
+                copyListToClipboard(
                   getUsersForDisplay(
                     state.results,
                     state.whitelistedResults,
@@ -83,7 +85,9 @@ export const Toolbar = ({
                     state.searchTerm,
                     state.filter,
                   ),
+                  () => showToast("List copied to clipboard!", "success"),
                 );
+                return;
               case "initial":
               case "unfollowing":
                 return;

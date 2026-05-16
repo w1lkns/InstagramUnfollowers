@@ -44,46 +44,32 @@ export const Unfollowing = (
         </menu>
       </aside>
       <article className="unfollow-log-container">
-        {state.unfollowLog.length === state.selectedResults.length && (
-          <>
-            <hr />
-            <div className="p-medium">
-              <span className="fs-large clr-green">All DONE! </span>
-              <span className="fs-medium">
-                {state.unfollowLog.filter(e => e.unfollowedSuccessfully).length} unfollowed
-                {state.unfollowLog.some(e => !e.unfollowedSuccessfully) && (
-                  <span className="clr-red">
-                    &nbsp;· {state.unfollowLog.filter(e => !e.unfollowedSuccessfully).length} failed
-                  </span>
-                )}
-              </span>
+        {state.unfollowLog.length === state.selectedResults.length && state.selectedResults.length > 0 && (
+          <div className="completion-banner">
+            <span className="completion-check">✓</span>
+            <div>
+              <strong>{state.unfollowLog.filter(e => e.unfollowedSuccessfully).length} unfollowed successfully</strong>
+              {state.unfollowLog.some(e => !e.unfollowedSuccessfully) && (
+                <span className="completion-failed">
+                  &nbsp;· {state.unfollowLog.filter(e => !e.unfollowedSuccessfully).length} failed
+                </span>
+              )}
             </div>
-            <hr />
-          </>
+          </div>
         )}
         {getUnfollowLogForDisplay(state.unfollowLog, state.searchTerm, state.filter).map(
-          (entry, index) =>
-            entry.unfollowedSuccessfully ? (
-              <div className="p-medium" key={entry.user.id}>
-                Unfollowed
-                <a
-                  className="clr-inherit"
-                  target="_blank"
-                  href={`../${entry.user.username}`}
-                  rel="noreferrer"
-                >
-                  &nbsp;{entry.user.username}
-                </a>
-                <span className="clr-cyan">
-                  &nbsp; [{index + 1}/{state.selectedResults.length}]
-                </span>
-              </div>
-            ) : (
-              <div className="p-medium clr-red" key={entry.user.id}>
-                Failed to unfollow {entry.user.username} [{index + 1}/
-                {state.selectedResults.length}]
-              </div>
-            ),
+          (entry, index) => (
+            <div className={`unfollow-log-entry ${entry.unfollowedSuccessfully ? "success" : "failed"}`} key={entry.user.id}>
+              <img className="avatar avatar--small" src={entry.user.profile_pic_url} alt={entry.user.username} />
+              <a className="unfollow-log-username" target="_blank" href={`../${entry.user.username}`} rel="noreferrer">
+                {entry.user.username}
+              </a>
+              <span className="unfollow-log-status">
+                {entry.unfollowedSuccessfully ? "Unfollowed" : "Failed"}
+              </span>
+              <span className="unfollow-log-index">{index + 1}/{state.selectedResults.length}</span>
+            </div>
+          )
         )}
       </article>
     </section>

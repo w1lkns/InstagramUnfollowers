@@ -154,6 +154,9 @@ export const Searching = ({
             </button>
           </div>
           <div className="sidebar-stats">
+            {state.percentage < 100 && (
+              <p className="scan-progress">Scanning: {state.percentage}%</p>
+            )}
             <p>Displayed: {usersForDisplay.length}</p>
             <p>Total Scanned: {state.results.length}</p>
             <p className="whitelist-counter">
@@ -286,6 +289,13 @@ export const Searching = ({
             Whitelisted
           </div>
         </nav>
+        {usersForDisplay.length === 0 && state.percentage === 100 && (
+          <div className="empty-state">
+            <div className="empty-state-icon">◎</div>
+            <p>No users match your current filters</p>
+            <span>Try adjusting the filters in the sidebar</span>
+          </div>
+        )}
         {getCurrentPageUnfollowers(usersForDisplay, state.page).map(user => {
           const firstLetter = user.username.substring(0, 1).toUpperCase();
           return (

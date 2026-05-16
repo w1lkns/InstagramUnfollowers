@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { render } from "react-dom";
 import "./styles.scss";
 
@@ -51,10 +51,59 @@ function App() {
     };
   });
 
+  const restoredScanRef = useRef(false);
+
+  const showToast = (text: string, style?: "success" | "error" | "warning" | "info") => {
+    setToast({ show: true, text, style });
+  };
+
   // Save timings whenever they change
   useEffect(() => {
     saveTimings(timings);
   }, [timings]);
+
+  // Restore completed scan from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("ig_scan_cache");
+      if (!raw) return;
+      const cache = JSON.parse(raw) as { results: UserNode[]; timestamp: number };
+      if (Date.now() - cache.timestamp > 24 * 60 * 60 * 1000) {
+        localStorage.removeItem("ig_scan_cache");
+        return;
+      }
+      const whitelistedResults = loadWhitelist();
+      restoredScanRef.current = true;
+      setState({
+        status: "scanning",
+        page: 1,
+        searchTerm: "",
+        currentTab: "non_whitelisted",
+        percentage: 100,
+        results: cache.results,
+        selectedResults: [],
+        whitelistedResults,
+        filter: {
+          showNonFollowers: true,
+          showFollowers: false,
+          showVerified: true,
+          showPrivate: true,
+          showWithOutProfilePicture: true,
+        },
+      });
+      setToast({ show: true, text: `Restored previous scan (${cache.results.length} users)`, style: "info" });
+    } catch {
+      localStorage.removeItem("ig_scan_cache");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Clear scan cache when unfollowing starts (results are being acted on)
+  useEffect(() => {
+    if (state.status === "unfollowing") {
+      localStorage.removeItem("ig_scan_cache");
+    }
+  }, [state.status]);
 
 
   let isActiveProcess: boolean;
@@ -74,6 +123,7 @@ function App() {
     if (state.status !== "initial") {
       return;
     }
+    localStorage.removeItem("ig_scan_cache");
     const whitelistedResults = loadWhitelist();
     setState({
       status: "scanning",
@@ -240,6 +290,10 @@ function App() {
       if (state.status !== "scanning") {
         return;
       }
+      if (restoredScanRef.current) {
+        restoredScanRef.current = false;
+        return;
+      }
       const results = [...state.results];
       let scrollCycle = 0;
       let url = urlGenerator();
@@ -309,6 +363,9 @@ function App() {
         }
         setToast({ show: false });
       }
+      try {
+        localStorage.setItem("ig_scan_cache", JSON.stringify({ results, timestamp: Date.now() }));
+      } catch {}
       setToast({ show: true, text: "Scanning completed!" });
     };
     scan();
@@ -448,6 +505,7 @@ function App() {
           currentTimings={timings}
           whitelistedUsers={state.status === "scanning" ? state.whitelistedResults : loadWhitelist()}
           onWhitelistUpdate={onWhitelistUpdate}
+          showToast={showToast}
         ></Toolbar>
 
         {markup}
@@ -463,9 +521,5 @@ if (location.hostname !== INSTAGRAM_HOSTNAME) {
 } else {
   document.title = "InstagramUnfollowers";
   document.body.innerHTML = "";
-  const fontLink = document.createElement("link");
-  fontLink.rel = "stylesheet";
-  fontLink.href = "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&display=swap";
-  document.head.appendChild(fontLink);
   render(<App />, document.body);
 }
