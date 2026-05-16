@@ -161,7 +161,7 @@ export const Toolbar = ({
             checked={
               (() => {
                 const displayed = getUsersForDisplay(state.results, state.whitelistedResults, state.currentTab, state.searchTerm, state.filter);
-                const pageUsers = getCurrentPageUnfollowers(displayed, state.page);
+                const pageUsers = getCurrentPageUnfollowers(displayed, state.page, state.status === "scanning" ? state.sortBy : "alphabetical");
                 // Fix: Check if pageUsers is not empty and all are selected
                 // Previous logic didn't account for empty page or partial selections correctly
                 return pageUsers.length > 0 && pageUsers.every(u => state.selectedResults.some(s => s.id === u.id));

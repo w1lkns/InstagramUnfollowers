@@ -1,5 +1,5 @@
 import React from "react";
-import { getCurrentPageUnfollowers, getMaxPage, getUsersForDisplay, isWithoutProfilePicture } from "../utils/utils";
+import { getCurrentPageUnfollowers, getMaxPage, getUsersForDisplay, isWithoutProfilePicture, SortBy } from "../utils/utils";
 import { State } from "../model/state";
 import { UserNode } from "../model/user";
 import { Timings } from "../model/timings";
@@ -49,12 +49,26 @@ export const Searching = ({
     state.searchTerm,
     state.filter,
   );
-  let currentLetter = "";
 
-  const onNewLetter = (firstLetter: string) => {
-    currentLetter = firstLetter;
-    return <div className="alphabet-character">{currentLetter}</div>;
+  const getSectionKey = (user: UserNode): string => {
+    switch (state.sortBy) {
+      case "alphabetical": return user.username.substring(0, 1).toUpperCase();
+      case "non_followers_first": return user.follows_viewer ? "follows_back" : "non_follower";
+      case "verified_first": return user.is_verified ? "verified" : "rest";
+    }
   };
+
+  const getSectionLabel = (key: string): string => {
+    switch (key) {
+      case "follows_back": return "Follows you back";
+      case "non_follower": return "Doesn't follow you back";
+      case "verified": return "Verified accounts";
+      case "rest": return "Everyone else";
+      default: return key;
+    }
+  };
+
+  let currentSection = "";
 
   return (
     <section className="flex">
@@ -108,6 +122,19 @@ export const Searching = ({
               &nbsp;No Pic
             </label>
           </menu>
+
+          <div className="sidebar-sort">
+            <p>Sort by</p>
+            <select
+              className="sort-select"
+              value={state.sortBy}
+              onChange={e => setState({ ...state, sortBy: e.currentTarget.value as SortBy, page: 1 })}
+            >
+              <option value="non_followers_first">Non-followers first</option>
+              <option value="alphabetical">A → Z</option>
+              <option value="verified_first">Verified first</option>
+            </select>
+          </div>
 
           <div className="sidebar-buttons-grid">
             <button
@@ -293,12 +320,21 @@ export const Searching = ({
             <span>Try adjusting the filters in the sidebar</span>
           </div>
         )}
-        {getCurrentPageUnfollowers(usersForDisplay, state.page).map(user => {
-          const firstLetter = user.username.substring(0, 1).toUpperCase();
+        {getCurrentPageUnfollowers(usersForDisplay, state.page, state.sortBy).map(user => {
+          const sectionKey = getSectionKey(user);
+          const isNewSection = sectionKey !== currentSection;
+          if (isNewSection) {
+            currentSection = sectionKey;
+          }
+          const isWhitelisted = state.whitelistedResults.some(r => r.id === user.id);
           return (
-            <>
-              {firstLetter !== currentLetter && onNewLetter(firstLetter)}
-              <label className="result-item">
+            <React.Fragment key={user.id}>
+              {isNewSection && (
+                <div className={`section-header ${state.sortBy === "alphabetical" ? "section-header--letter" : "section-header--label"}`}>
+                  {getSectionLabel(sectionKey)}
+                </div>
+              )}
+              <label className={`result-item ${user.follows_viewer ? "mutual" : "non-follower"}`}>
                 <div className="flex grow align-center">
                   <div className="avatar-container">
                     <img
@@ -329,18 +365,20 @@ export const Searching = ({
                   )}
                 </div>
                 <div className="flex align-center gap-small">
+                  <span className={`relationship-badge ${user.follows_viewer ? "follows-back" : "non-follower"}`}>
+                    {user.follows_viewer ? "Follows you" : "Doesn't follow"}
+                  </span>
                   <button
-                    className={`whitelist-bookmark-button ${state.whitelistedResults.some(r => r.id === user.id) ? "active" : ""}`}
+                    className={`whitelist-bookmark-button ${isWhitelisted ? "active" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      const isWhitelisted = state.whitelistedResults.some(r => r.id === user.id);
                       const updatedWhitelist = isWhitelisted
                         ? state.whitelistedResults.filter(r => r.id !== user.id)
                         : [...state.whitelistedResults, user];
                       onWhitelistUpdate(updatedWhitelist);
                     }}
-                    title={state.whitelistedResults.some(r => r.id === user.id) ? "Remove from whitelist" : "Add to whitelist"}
+                    title={isWhitelisted ? "Remove from whitelist" : "Add to whitelist"}
                   >
                     🔖
                   </button>
@@ -352,7 +390,7 @@ export const Searching = ({
                   />
                 </div>
               </label>
-            </>
+            </React.Fragment>
           );
         })}
       </article>

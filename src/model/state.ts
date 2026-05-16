@@ -3,6 +3,7 @@ import { ScanningTab } from "./scanning-tab";
 import { ScanningFilter } from "./scanning-filter";
 import { UnfollowLogEntry } from "./unfollow-log-entry";
 import { UnfollowFilter } from "./unfollow-filter";
+import { SortBy } from "../utils/utils";
 
 type ScanningState = {
   readonly status: 'scanning';
@@ -14,6 +15,7 @@ type ScanningState = {
   readonly whitelistedResults: readonly UserNode[];
   readonly selectedResults: readonly UserNode[];
   readonly filter: ScanningFilter;
+  readonly sortBy: SortBy;
 };
 
 type UnfollowingState = {

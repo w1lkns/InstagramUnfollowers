@@ -5,6 +5,28 @@ import { ScanningFilter } from "../model/scanning-filter";
 import { UnfollowLogEntry } from "../model/unfollow-log-entry";
 import { UnfollowFilter } from "../model/unfollow-filter";
 
+export type SortBy = "alphabetical" | "non_followers_first" | "verified_first";
+
+export function sortUsers(users: readonly UserNode[], sortBy: SortBy): UserNode[] {
+  const arr = [...users];
+  switch (sortBy) {
+    case "alphabetical":
+      return arr.sort((a, b) => a.username.localeCompare(b.username));
+    case "non_followers_first":
+      return arr.sort((a, b) => {
+        if (!a.follows_viewer && b.follows_viewer) return -1;
+        if (a.follows_viewer && !b.follows_viewer) return 1;
+        return a.username.localeCompare(b.username);
+      });
+    case "verified_first":
+      return arr.sort((a, b) => {
+        if (a.is_verified && !b.is_verified) return -1;
+        if (!a.is_verified && b.is_verified) return 1;
+        return a.username.localeCompare(b.username);
+      });
+  }
+}
+
 export async function copyListToClipboard(nonFollowersList: readonly UserNode[], onSuccess?: () => void): Promise<void> {
   const sortedList = [...nonFollowersList].sort((a, b) => (a.username > b.username ? 1 : -1));
 
@@ -56,9 +78,9 @@ export function getMaxPage(nonFollowersList: readonly UserNode[]): number {
   return pageCalc < 1 ? 1 : pageCalc;
 }
 
-export function getCurrentPageUnfollowers(nonFollowersList: readonly UserNode[], currentPage: number): readonly UserNode[] {
-  const sortedList = [...nonFollowersList].sort((a, b) => (a.username > b.username ? 1 : -1));
-  return sortedList.splice(UNFOLLOWERS_PER_PAGE * (currentPage - 1), UNFOLLOWERS_PER_PAGE);
+export function getCurrentPageUnfollowers(nonFollowersList: readonly UserNode[], currentPage: number, sortBy: SortBy = "alphabetical"): readonly UserNode[] {
+  const sorted = sortUsers(nonFollowersList, sortBy);
+  return sorted.slice(UNFOLLOWERS_PER_PAGE * (currentPage - 1), UNFOLLOWERS_PER_PAGE * currentPage);
 }
 
 export function isWithoutProfilePicture(user: UserNode): boolean {

@@ -81,6 +81,7 @@ function App() {
         results: cache.results,
         selectedResults: [],
         whitelistedResults,
+        sortBy: "non_followers_first",
         filter: {
           showNonFollowers: true,
           showFollowers: false,
@@ -132,6 +133,7 @@ function App() {
       results: [],
       selectedResults: [],
       whitelistedResults,
+      sortBy: "non_followers_first",
       filter: {
         showNonFollowers: true,
         showFollowers: false,
@@ -237,6 +239,7 @@ function App() {
             state.filter,
           ),
           state.page,
+          state.sortBy,
         ),
       });
     } else {
