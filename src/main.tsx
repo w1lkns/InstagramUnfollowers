@@ -51,6 +51,8 @@ function App() {
 
   const restoredScanRef = useRef(false);
 
+  const [cachedScan, setCachedScan] = useState<{ results: UserNode[]; timestamp: number } | null>(null);
+
   const showToast = (text: string, style?: "success" | "error" | "warning" | "info") => {
     setToast({ show: true, text, style });
   };
@@ -60,7 +62,7 @@ function App() {
     saveTimings(timings);
   }, [timings]);
 
-  // Restore completed scan from localStorage on mount
+  // Check for a cached scan on mount — surface it to the user rather than auto-restoring
   useEffect(() => {
     try {
       const raw = localStorage.getItem("ig_scan_cache");
@@ -70,32 +72,37 @@ function App() {
         localStorage.removeItem("ig_scan_cache");
         return;
       }
-      const whitelistedResults = loadWhitelist();
-      restoredScanRef.current = true;
-      setState({
-        status: "scanning",
-        page: 1,
-        searchTerm: "",
-        currentTab: "non_whitelisted",
-        percentage: 100,
-        results: cache.results,
-        selectedResults: [],
-        whitelistedResults,
-        sortBy: "non_followers_first",
-        filter: {
-          showNonFollowers: true,
-          showFollowers: false,
-          showVerified: true,
-          showPrivate: true,
-          showWithOutProfilePicture: true,
-        },
-      });
-      setToast({ show: true, text: `Restored previous scan (${cache.results.length} users)`, style: "info" });
+      setCachedScan(cache);
     } catch {
       localStorage.removeItem("ig_scan_cache");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const onRestoreScan = () => {
+    if (!cachedScan) return;
+    const whitelistedResults = loadWhitelist();
+    restoredScanRef.current = true;
+    setCachedScan(null);
+    setState({
+      status: "scanning",
+      page: 1,
+      searchTerm: "",
+      currentTab: "non_whitelisted",
+      percentage: 100,
+      results: cachedScan.results,
+      selectedResults: [],
+      whitelistedResults,
+      sortBy: "non_followers_first",
+      filter: {
+        showNonFollowers: true,
+        showFollowers: false,
+        showVerified: true,
+        showPrivate: true,
+        showWithOutProfilePicture: true,
+      },
+    });
+  };
 
   // Clear scan cache when unfollowing starts (results are being acted on)
   useEffect(() => {
@@ -122,6 +129,7 @@ function App() {
     if (state.status !== "initial") {
       return;
     }
+    setCachedScan(null);
     localStorage.removeItem("ig_scan_cache");
     const whitelistedResults = loadWhitelist();
     setState({
@@ -464,7 +472,7 @@ function App() {
   let markup: React.JSX.Element;
   switch (state.status) {
     case "initial":
-      markup = <NotSearching onScan={onScan}></NotSearching>;
+      markup = <NotSearching onScan={onScan} cachedScan={cachedScan} onRestoreScan={onRestoreScan}></NotSearching>;
       break;
 
     case "scanning": {
