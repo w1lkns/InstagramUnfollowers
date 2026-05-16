@@ -1,8 +1,7 @@
 import React from "react";
-import { assertUnreachable, getCurrentPageUnfollowers, getMaxPage, getUsersForDisplay, isWithoutProfilePicture } from "../utils/utils";
+import { getCurrentPageUnfollowers, getMaxPage, getUsersForDisplay, isWithoutProfilePicture } from "../utils/utils";
 import { State } from "../model/state";
 import { UserNode } from "../model/user";
-import { WHITELISTED_RESULTS_STORAGE_KEY } from "../constants/constants";
 import { Timings } from "../model/timings";
 
 function formatEstimate(n: number, timings: Timings): string {
@@ -25,8 +24,7 @@ export interface SearchingProps {
   pauseScan: () => void;
   handleScanFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
   toggleUser: (checked: boolean, user: UserNode) => void;
-  UserCheckIcon: React.FC;
-  UserUncheckIcon: React.FC;
+  onWhitelistUpdate: (users: readonly UserNode[]) => void;
   currentTimings: Timings;
 }
 
@@ -37,8 +35,7 @@ export const Searching = ({
   pauseScan,
   handleScanFilter,
   toggleUser,
-  UserCheckIcon,
-  UserUncheckIcon,
+  onWhitelistUpdate,
   currentTimings,
 }: SearchingProps) => {
   if (state.status !== "scanning") {
@@ -303,34 +300,7 @@ export const Searching = ({
               {firstLetter !== currentLetter && onNewLetter(firstLetter)}
               <label className="result-item">
                 <div className="flex grow align-center">
-                  <div
-                    className="avatar-container"
-                    onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                      // Prevent selecting result when trying to add to whitelist.
-                      e.preventDefault();
-                      e.stopPropagation();
-                      let whitelistedResults: readonly UserNode[] = [];
-                      switch (state.currentTab) {
-                        case "non_whitelisted":
-                          whitelistedResults = [...state.whitelistedResults, user];
-                          break;
-
-                        case "whitelisted":
-                          whitelistedResults = state.whitelistedResults.filter(
-                            result => result.id !== user.id,
-                          );
-                          break;
-
-                        default:
-                          assertUnreachable(state.currentTab);
-                      }
-                      localStorage.setItem(
-                        WHITELISTED_RESULTS_STORAGE_KEY,
-                        JSON.stringify(whitelistedResults),
-                      );
-                      setState({ ...state, whitelistedResults });
-                    }}
-                  >
+                  <div className="avatar-container">
                     <img
                       className="avatar"
                       alt={user.username}
@@ -339,13 +309,6 @@ export const Searching = ({
                     <div className="avatar-preview">
                       <img src={user.profile_pic_url.replace("s150x150/", "s320x320/")} alt={user.username} />
                     </div>
-                    <span className="avatar-icon-overlay-container">
-                      {state.currentTab === "non_whitelisted" ? (
-                        <UserCheckIcon />
-                      ) : (
-                        <UserUncheckIcon />
-                      )}
-                    </span>
                   </div>
                   <div className="flex column m-medium">
                     <a
@@ -367,28 +330,19 @@ export const Searching = ({
                 </div>
                 <div className="flex align-center gap-small">
                   <button
-                    className={`whitelist-star-button ${state.currentTab === "whitelisted" ? "active" : ""}`}
+                    className={`whitelist-bookmark-button ${state.whitelistedResults.some(r => r.id === user.id) ? "active" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      let whitelistedResults: readonly UserNode[] = [];
-                      if (state.whitelistedResults.some(r => r.id === user.id)) {
-                        // Remove from whitelist
-                        whitelistedResults = state.whitelistedResults.filter(r => r.id !== user.id);
-                      } else {
-                        // Add to whitelist
-                        whitelistedResults = [...state.whitelistedResults, user];
-                      }
-                      
-                      localStorage.setItem(
-                        WHITELISTED_RESULTS_STORAGE_KEY,
-                        JSON.stringify(whitelistedResults),
-                      );
-                      setState({ ...state, whitelistedResults });
+                      const isWhitelisted = state.whitelistedResults.some(r => r.id === user.id);
+                      const updatedWhitelist = isWhitelisted
+                        ? state.whitelistedResults.filter(r => r.id !== user.id)
+                        : [...state.whitelistedResults, user];
+                      onWhitelistUpdate(updatedWhitelist);
                     }}
                     title={state.whitelistedResults.some(r => r.id === user.id) ? "Remove from whitelist" : "Add to whitelist"}
                   >
-                    ★
+                    🔖
                   </button>
                   <input
                     className="account-checkbox"

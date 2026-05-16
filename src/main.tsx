@@ -4,8 +4,6 @@ import "./styles.scss";
 
 import { User, UserNode } from "./model/user";
 import { Toast } from "./components/Toast";
-import { UserCheckIcon } from "./components/icons/UserCheckIcon";
-import { UserUncheckIcon } from "./components/icons/UserUncheckIcon";
 import { DEFAULT_TIME_BETWEEN_SEARCH_CYCLES,
   DEFAULT_TIME_BETWEEN_UNFOLLOWS,
   DEFAULT_TIME_TO_WAIT_AFTER_FIVE_SEARCH_CYCLES,
@@ -474,8 +472,7 @@ function App() {
         pauseScan={pauseScan}
         setState={setState}
         scanningPaused={scanningPaused}
-        UserCheckIcon={UserCheckIcon}
-        UserUncheckIcon={UserUncheckIcon}
+        onWhitelistUpdate={onWhitelistUpdate}
         currentTimings={timings}
       ></Searching>;
       break;
